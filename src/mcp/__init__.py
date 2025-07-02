@@ -56,7 +56,7 @@ from .types import (
 from .types import (
     Role as SamplingRole,
 )
-print("Sono nella init della mia versione di mcp")
+print("Sono nella init della mia versione del pacchetto mcp")
 __all__ = [
     "CallToolRequest",
     "ClientCapabilities",
