@@ -32,21 +32,39 @@ class BearerAuthBackend(AuthenticationBackend):
             (conn.headers.get(key) for key in conn.headers if key.lower() == "authorization"),
             None,
         )
-        if not auth_header or not auth_header.lower().startswith("bearer "):
+
+        print(f"[AUTH] Incoming headers: {dict(conn.headers)}")
+
+        if not auth_header:
+            print("[AUTH] Missing Authorization header")
+            return None
+
+        if not auth_header.lower().startswith("bearer "):
+            print("[AUTH] Malformed Authorization header")
             return None
 
         token = auth_header[7:]  # Remove "Bearer " prefix
+        print(f"[AUTH] Extracted token: {token}")
 
-        # Validate the token with the verifier
-        auth_info = await self.token_verifier.verify_token(token)
+        try:
+            # Validate the token with the verifier
+            auth_info = await self.token_verifier.verify_token(token)
+            print(f"[AUTH] Token verification result: {auth_info}")
+        except Exception as e:
+            print(f"[AUTH] Exception during token verification: {e}")
+            return None
 
         if not auth_info:
+            print("[AUTH] Invalid token: verification returned None")
             return None
 
         if auth_info.expires_at and auth_info.expires_at < int(time.time()):
+            print("[AUTH] Token expired")
             return None
 
+        print(f"[AUTH] Token valid. Scopes: {auth_info.scopes}")
         return AuthCredentials(auth_info.scopes), AuthenticatedUser(auth_info)
+
 
 
 class RequireAuthMiddleware:
