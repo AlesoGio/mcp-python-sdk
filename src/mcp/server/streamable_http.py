@@ -307,6 +307,15 @@ class StreamableHTTPServerTransport:
         writer = self._read_stream_writer
         if writer is None:
             raise ValueError("No read stream writer available. Ensure connect() is called first.")
+
+        # Log diagnostico all’inizio della richiesta
+        logger.debug(
+            "Incoming POST /mcp request | "
+            f"method={request.method} | "
+            f"url={request.url} | "
+            f"headers={{{', '.join(f'{k}: {v}' for k, v in request.headers.items())}}}"
+        )
+
         try:
             # Check Accept headers
             has_json, has_sse = self._check_accept_headers(request)
